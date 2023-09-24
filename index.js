@@ -16,6 +16,10 @@ function getCurrentRoom() {
     //     return room.location == usersCurrentRoom;
     // })
     return roomList[0]
+} 
+
+function render(str){
+    outputText(str)
 }
 
 
@@ -23,20 +27,34 @@ function getCurrentRoom() {
 
 
 let gameRunning = true
-let roomList = []
+let roomList = [];
+
+class GameObject {
+    constructor(){
+
+    }
+}
+
 class Room {
     constructor(location=[], narrate='', surroundings='', sleep=''){
         this.location = location
         this.narrate = narrate
         this.surroundings = surroundings
         this.sleep = sleep
+        this.items = []
     }
 
     prompt(str) {
         return promptInput(this.narrate)
     }
+
     lookAround() {
         outputText(this.surroundings)
+        if(this.items.length > 0) {
+            this.items.forEach( (item) => {
+                render(`You see a ${item.type}: ${item.description}`)
+            })
+        }
     }
     attemptRest() {
         outputText(this.sleep)
@@ -47,11 +65,37 @@ class Room {
     setSleepText(str) {
         this.sleep = str
     }
+    addItem(door){
+        this.items.push(door)
+    }
+}
+
+class Door extends GameObject {
+    constructor(){
+        super()
+        this.type = 'Door'
+        this.descriptionStr = ''
+    }
+
+    set description(str){
+        this.descriptionStr = str
+    }
+
+    get description(){
+        return this.descriptionStr;
+    }
+
 }
 let room = new Room([0,0], 'you wake up. What now? (a = LOOK AROUND, b = TRY TO REST)')
 room.setSurroundingsText('The room is empty. However, there is a part of the wall that rotates inward on the left vertice of some empty space, commonly known as a DOOR.')
 room.setSleepText('You try to REST, but find yourself too restless. What now? (a = LOOK AROUND, b = TRY TO REST)')
+
+let door = new Door();
+door.description = 'It is red and doesn\'t appear to be locked';
+room.addItem(door)
+
 roomList.push(room)
+
 let usersCurrentRoom = [0,0];
 let userInput = ''
 
@@ -74,7 +118,10 @@ $("input").keydown(function(event){
 
 function outputText(str){
     let outputElement = $("#output");
-    outputElement[0].innerText = str
+    let el = document.createElement('div')
+    el.innerText = str
+    outputElement[0].append(el)
+    // $(`<div>${str}</div>`).insertAfter(outputElement);
 }
 
 
