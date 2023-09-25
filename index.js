@@ -33,10 +33,15 @@ class GameObject {
     constructor(){
 
     }
+
+    respondsTo(str){
+        return false
+    }
 }
 
-class Room {
+class Room extends GameObject{
     constructor(location=[], narrate='', surroundings='', sleep=''){
+        super()
         this.location = location
         this.narrate = narrate
         this.surroundings = surroundings
@@ -67,6 +72,17 @@ class Room {
     }
     addItem(door){
         this.items.push(door)
+    }
+
+    respondsTo(str){
+        let commands = this.getCommands()
+        if(str in commands){
+            return true;
+        }
+    }
+
+    getCommands(){
+        return ['open door']
     }
 }
 
@@ -111,6 +127,7 @@ $("input").keydown(function(event){
 
   function handleEnterPress(){
     userInput = textInput[0].value;
+    userInput = userInput.toLowerCase()
     textInput[0].value = ''
     main();
 
@@ -136,12 +153,21 @@ function main(){
         var currentRoom = getCurrentRoom();
         currentRoom.prompt();
     }
-    if(userInput.toLowerCase() == "a") {
+
+    if(userInput == "a") {
         currentRoom.lookAround()
     }
-    if(userInput.toLowerCase() == "b") {
+    else if(userInput == "b") {
         currentRoom.attemptRest()
     }
+    
+    else {
+        if(room.respondsTo(userInput)){
+            // do something
+    } else {
+        render(`Sorry, dont understand ${userInput}`)
+    }
+}
 }
 
 
